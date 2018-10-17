@@ -159,9 +159,9 @@ Statistics
 	查询2的SQL语句是直接从hr.departments d和hr.employees e两个表中查询出"部门总人数"和"平均工资",
 	然后通过where子句进行约束限制然后又通过department_name来排列显示,最后通过having in 来过滤显示内容。
 ### 分析查询1和查询2的SQL语句谁较优： 
-			     （1）查询1的Cost(%CPU)普遍比查询2的Cost（%CPU）消耗低
-			     （2）通过查询时间可以看出查询1的SQL语句比查询2的SQL的SQL语句查询时间低
-			     （3）因为Oracle存在缓存的机制，多运行几次后依旧是查询1语句较优    	
+	（1）查询1的Cost(%CPU)普遍比查询2的Cost（%CPU）消耗低
+	（2）通过查询时间可以看出查询1的SQL语句比查询2的SQL的SQL语句查询时间低
+	（3）因为Oracle存在缓存的机制，多运行几次后依旧是查询1语句较优    	
 				
 ### 最优查询：	
 	
