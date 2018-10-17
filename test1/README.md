@@ -32,17 +32,17 @@ Plan hash value: 1370531240
 
 | Id  | Operation                     | Name              | Rows  | Bytes | Cost (%CPU)| Time     |
 
-|   0 | SELECT STATEMENT              |                   |     2 |    46 |     2   (0)| 00:00:01 |<br>
-|   1 |  SORT GROUP BY NOSORT         |                   |     2 |    46 |     2   (0)| 00:00:01 |<br>
-|   2 |   NESTED LOOPS                |                   |    19 |   437 |     2   (0)| 00:00:01 |<br>
-|   3 |    NESTED LOOPS               |                   |    20 |   437 |     2   (0)| 00:00:01 |<br>
-|   4 |     INLIST ITERATOR           |                   |       |       |            |          |<br>
-|*  5 |      INDEX RANGE SCAN         | IDX$$_006F0001    |     2 |    32 |     1   (0)| 00:00:01 |<br>
+|   0 | SELECT STATEMENT              |                   |     2 |    46 |     2   (0)| 00:00:01 |
+|   1 |  SORT GROUP BY NOSORT         |                   |     2 |    46 |     2   (0)| 00:00:01 |
+|   2 |   NESTED LOOPS                |                   |    19 |   437 |     2   (0)| 00:00:01 |
+|   3 |    NESTED LOOPS               |                   |    20 |   437 |     2   (0)| 00:00:01 |
+|   4 |     INLIST ITERATOR           |                   |       |       |            |          |
+|*  5 |      INDEX RANGE SCAN         | IDX$$_006F0001    |     2 |    32 |     1   (0)| 00:00:01 |
 
 PLAN_TABLE_OUTPUT                                                                                                                                                                                                                                                                                           
 
-|*  6 |     INDEX RANGE SCAN          | EMP_DEPARTMENT_IX |    10 |       |     0   (0)| 00:00:01 |<br>
-|   7 |    TABLE ACCESS BY INDEX ROWID| EMPLOYEES         |    10 |    70 |     1   (0)| 00:00:01 |<br>
+|*  6 |     INDEX RANGE SCAN          | EMP_DEPARTMENT_IX |    10 |       |     0   (0)| 00:00:01 |
+|   7 |    TABLE ACCESS BY INDEX ROWID| EMPLOYEES         |    10 |    70 |     1   (0)| 00:00:01 |
 
  
 Predicate Information (identified by operation id):
@@ -99,14 +99,14 @@ Sales                                  34 8955.88235
 Explain Plan
 PLAN_TABLE_OUTPUT                                                                                                                                                                                                                                                                                      
 Plan hash value: 2694570928 
-|id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     |<br>
+|id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
 
-|   0 | SELECT STATEMENT     |                |     1 |    23 |     5  (20)| 00:00:01 |<br>
-|*  1 |  FILTER              |                |       |       |            |          |<br>
-|   2 |   HASH GROUP BY      |                |     1 |    23 |     5  (20)| 00:00:01 |<br>
-|*  3 |    HASH JOIN         |                |   106 |  2438 |     4   (0)| 00:00:01 |<br>
-|   4 |     INDEX FULL SCAN  | IDX$$_006F0001 |    27 |   432 |     1   (0)| 00:00:01 |<br>
-|   5 |     TABLE ACCESS FULL| EMPLOYEES      |   107 |   749 |     3   (0)| 00:00:01 |<br>
+|   0 | SELECT STATEMENT     |                |     1 |    23 |     5  (20)| 00:00:01 |
+|*  1 |  FILTER              |                |       |       |            |          |
+|   2 |   HASH GROUP BY      |                |     1 |    23 |     5  (20)| 00:00:01 |
+|*  3 |    HASH JOIN         |                |   106 |  2438 |     4   (0)| 00:00:01 |
+|   4 |     INDEX FULL SCAN  | IDX$$_006F0001 |    27 |   432 |     1   (0)| 00:00:01 |
+|   5 |     TABLE ACCESS FULL| EMPLOYEES      |   107 |   749 |     3   (0)| 00:00:01 |
 PLAN_TABLE_OUTPUT                                                                                                                                                                                                                                                                                           
 
 
