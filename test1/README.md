@@ -13,7 +13,7 @@
 	from hr.departments d，hr.employees e
 	where d.department_id = e.department_id
 	and d.department_name in ('IT'，'Sales')
-	GROUP BY department_name;<br>
+	GROUP BY department_name;
 ```
 ### 结果1：
 ```SQL
