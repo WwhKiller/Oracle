@@ -153,9 +153,11 @@ Statistics
               26  user calls
 ```
 ### 查询1执行计划：
-	查询1的SQL语句是直接从hr.departments d和hr.employees e两个表中查询出"部门总人数"和"平均工资",然后通过where子句进行约束限制,最后通		过department_name来排列显示。
+	查询1的SQL语句是直接从hr.departments d和hr.employees e两个表中查询出"部门总人数"和"平均工资",
+	然后通过where子句进行约束限制,最后通department_name过department_name来排列显示。
 ### 查询2执行计划：
-	查询2的SQL语句是直接从hr.departments d和hr.employees e两个表中查询出"部门总人数"和"平均工资",然后通过where子句进行约束限制然后又通过 	department_name来排列显示,最后通过having in 来过滤显示内容。
+	查询2的SQL语句是直接从hr.departments d和hr.employees e两个表中查询出"部门总人数"和"平均工资",
+	然后通过where子句进行约束限制然后又通过department_name来排列显示,最后通过having in 来过滤显示内容。
 ### 分析查询1和查询2的SQL语句谁较优： 
 			     （1）查询1的Cost(%CPU)普遍比查询2的Cost（%CPU）消耗低
 			     （2）通过查询时间可以看出查询1的SQL语句比查询2的SQL的SQL语句查询时间低
