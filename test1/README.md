@@ -96,14 +96,14 @@ Sales                                  34 8955.88235
 Explain Plan
 PLAN_TABLE_OUTPUT                                                                                                                                                                                                                                                                                      
 Plan hash value: 2694570928 
-|id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     |
+|id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     |<br>
 
-|   0 | SELECT STATEMENT     |                |     1 |    23 |     5  (20)| 00:00:01 |
-|*  1 |  FILTER              |                |       |       |            |          |
-|   2 |   HASH GROUP BY      |                |     1 |    23 |     5  (20)| 00:00:01 |
-|*  3 |    HASH JOIN         |                |   106 |  2438 |     4   (0)| 00:00:01 |
-|   4 |     INDEX FULL SCAN  | IDX$$_006F0001 |    27 |   432 |     1   (0)| 00:00:01 |
-|   5 |     TABLE ACCESS FULL| EMPLOYEES      |   107 |   749 |     3   (0)| 00:00:01 |
+|   0 | SELECT STATEMENT     |                |     1 |    23 |     5  (20)| 00:00:01 |<br>
+|*  1 |  FILTER              |                |       |       |            |          |<br>
+|   2 |   HASH GROUP BY      |                |     1 |    23 |     5  (20)| 00:00:01 |<br>
+|*  3 |    HASH JOIN         |                |   106 |  2438 |     4   (0)| 00:00:01 |<br>
+|   4 |     INDEX FULL SCAN  | IDX$$_006F0001 |    27 |   432 |     1   (0)| 00:00:01 |<br>
+|   5 |     TABLE ACCESS FULL| EMPLOYEES      |   107 |   749 |     3   (0)| 00:00:01 |<br>
 PLAN_TABLE_OUTPUT                                                                                                                                                                                                                                                                                           
 
 
