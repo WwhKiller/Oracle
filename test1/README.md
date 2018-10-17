@@ -2,11 +2,12 @@
 
 ## 实验内容：
 	对Oracle12c中的HR人力资源管理系统中的表进行查询与分析。
-	首先运行和分析教材中的样例：本训练任务目的是查询两个部门('IT'和'Sales')的部门总人数和平均工资，以下两个查询的结果是一样的。但效率不相同。
+	首先运行和分析教材中的样例：本训练任务目的是查询两个部
+	门('IT'和'Sales')的部门总人数和平均工资，以下两个查询
+	的结果是一样的。但效率不相同。
 	设计自己的查询语句，并作相应的分析，查询语句不能太简单。
 
-查询1：
-(```)
+查询1：```
 	set autotrace on
    	SELECT d.department_name，count(e.job_id)as "部门总人数"，
 	avg(e.salary)as "平均工资"
@@ -14,9 +15,9 @@
 	where d.department_id = e.department_id
 	and d.department_name in ('IT'，'Sales')
 	GROUP BY department_name;
-(```)
+```
 结果1：
-(```)
+```
 DEPARTMENT_NAME                     部门总人数       平均工资
 ------------------------------ ---------- ----------
 IT                                      5       5760
@@ -79,8 +80,8 @@ Statistics
             1178  sorts (rows)
               39  table fetch by rowid
               26  user calls
-(```)
-查询2：(```)
+```
+查询2：```
 	 set autotrace on
 	SELECT d.department_name，count(e.job_id)as "部门总人数"，
 	avg(e.salary)as "平均工资"
@@ -88,8 +89,8 @@ Statistics
 	WHERE d.department_id = e.department_id
 	GROUP BY department_name
 	HAVING d.department_name in ('IT'，'Sales');
-	(```)
-结果2：(```)
+	```
+结果2：```
 DEPARTMENT_NAME                     部门总人数       平均工资
 ------------------------------ ---------- ----------
 IT                                      5       5760
@@ -156,7 +157,7 @@ Statistics
              107  table scan rows gotten
                1  table scans (short tables)
               26  user calls
-(```)
+```
 查询1执行计划：查询1的SQL语句是直接从hr.departments d和hr.employees e两个表中查询出"部门总人数"和"平均工资",然后通过where子句进行约束限制,最后通		      过department_name来排列显示。<br>
 查询2执行计划：查询2的SQL语句是直接从hr.departments d和hr.employees e两个表中查询出"部门总人数"和"平均工资",然后通过where子句进行约束限制然后又通过 department_name来排列显示,最后通过having in 来过滤显示内容。
 分析查询1和查询2的SQL语句谁较优： 
