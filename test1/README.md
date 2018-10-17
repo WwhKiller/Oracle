@@ -31,17 +31,17 @@ Plan hash value: 1370531240
 
 | Id  | Operation                     | Name              | Rows  | Bytes | Cost (%CPU)| Time     |
 
-|   0 | SELECT STATEMENT              |                   |     2 |    46 |     2   (0)| 00:00:01 |
-|   1 |  SORT GROUP BY NOSORT         |                   |     2 |    46 |     2   (0)| 00:00:01 |
-|   2 |   NESTED LOOPS                |                   |    19 |   437 |     2   (0)| 00:00:01 |
-|   3 |    NESTED LOOPS               |                   |    20 |   437 |     2   (0)| 00:00:01 |
-|   4 |     INLIST ITERATOR           |                   |       |       |            |          |
-|*  5 |      INDEX RANGE SCAN         | IDX$$_006F0001    |     2 |    32 |     1   (0)| 00:00:01 |
+|   0 | SELECT STATEMENT              |                   |     2 |    46 |     2   (0)| 00:00:01 |<br>
+|   1 |  SORT GROUP BY NOSORT         |                   |     2 |    46 |     2   (0)| 00:00:01 |<br>
+|   2 |   NESTED LOOPS                |                   |    19 |   437 |     2   (0)| 00:00:01 |<br>
+|   3 |    NESTED LOOPS               |                   |    20 |   437 |     2   (0)| 00:00:01 |<br>
+|   4 |     INLIST ITERATOR           |                   |       |       |            |          |<br>
+|*  5 |      INDEX RANGE SCAN         | IDX$$_006F0001    |     2 |    32 |     1   (0)| 00:00:01 |<br>
 
 PLAN_TABLE_OUTPUT                                                                                                                                                                                                                                                                                           
 
-|*  6 |     INDEX RANGE SCAN          | EMP_DEPARTMENT_IX |    10 |       |     0   (0)| 00:00:01 |
-|   7 |    TABLE ACCESS BY INDEX ROWID| EMPLOYEES         |    10 |    70 |     1   (0)| 00:00:01 |
+|*  6 |     INDEX RANGE SCAN          | EMP_DEPARTMENT_IX |    10 |       |     0   (0)| 00:00:01 |<br>
+|   7 |    TABLE ACCESS BY INDEX ROWID| EMPLOYEES         |    10 |    70 |     1   (0)| 00:00:01 |<br>
 
  
 Predicate Information (identified by operation id):
