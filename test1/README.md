@@ -166,4 +166,4 @@ Statistics
 ### 最优查询：	
 
 ![Image text](https://github.com/WwhKiller/Oracle/blob/master/test1/QQ%E6%88%AA%E5%9B%BE20181018193957.png)
-			     	
+	通过用sqldeveloper查看并没有给出对词语句的优化建议。			     	
