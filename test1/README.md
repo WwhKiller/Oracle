@@ -164,6 +164,5 @@ Statistics
 	（3）因为Oracle存在缓存的机制，多运行几次后依旧是查询1语句较优    	
 				
 ### 最优查询：	
-	![优化建议](https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/
-	u=702257389,1274025419&fm=27&gp=0.jpg "优化建议")
+	![优化建议](https://github.com/WwhKiller/Oracle/blob/master/test1/QQ%E6%88%AA%E5%9B%BE20181018193957.png"优化建议")
 			     	
