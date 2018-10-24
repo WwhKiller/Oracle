@@ -44,7 +44,7 @@ SQL> GRANT con_wwh_view TO new_usr;
 SQL> exit
 
 ```
--第二步：新用户new_user连接到pdborcl，创建表mytable和视图myview，插入数据，最后将myview的SELECT对象权限授予hr用户。
+- 第二步：新用户new_user连接到pdborcl，创建表mytable和视图myview，插入数据，最后将myview的SELECT对象权限授予hr用户。
 ```SQL
 $ sqlplus new_usr/123@pdborcl
 SQL> show user;
@@ -80,7 +80,7 @@ SQL> exit
 
 ```
 
--第3步：用户hr连接到pdborcl，查询new_user授予它的视图myview
+- 第3步：用户hr连接到pdborcl，查询new_user授予它的视图myview
 ```SQL
 $ sqlplus new_usr/123@pdborcl
 SQL> SELECT * FROM new_usr.myview;
@@ -144,7 +144,7 @@ SYSTEM
 
  ```
 ## 实验步骤(Oracle SQL Developer)：
--SQL-DEVELOPER修改用户的操作界面： 
+- SQL-DEVELOPER修改用户的操作界面： 
 ![Image text](https://github.com/WwhKiller/Oracle/blob/master/test2/QQ%E6%88%AA%E5%9B%BE20181024094644.png)
--sqldeveloper授权对象的操作界面： 
+- SQL-DEVELOPER授权对象的操作界面： 
 ![Image text](https://github.com/WwhKiller/Oracle/blob/master/test2/QQ%E6%88%AA%E5%9B%BE20181024094858.png)
