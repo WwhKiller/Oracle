@@ -145,4 +145,6 @@ SYSTEM
  ```
 ## 实验步骤(Oracle SQL Developer)：
 -SQL-DEVELOPER修改用户的操作界面： 
+![Image text](https://github.com/WwhKiller/Oracle/blob/master/test2/QQ%E6%88%AA%E5%9B%BE20181024094644.png)
 -sqldeveloper授权对象的操作界面： 
+![Image text](https://github.com/WwhKiller/Oracle/blob/master/test2/QQ%E6%88%AA%E5%9B%BE20181024094858.png)
