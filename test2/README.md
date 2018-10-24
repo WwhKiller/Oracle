@@ -7,7 +7,7 @@
     - 创建角色之后，再创建用户new_user，给用户分配表空间，设置限额为50M，授予con_res_view角色。
     - 最后测试：用新用户new_user连接数据库、创建表，插入数据，创建视图，查询表和视图的数据。
 ## 实验步骤(Git Bash)：
-- 第1步：以system登录到pdborcl，创建角色con_res_view和用户new_user，并授权和分配空间：
+- 第一步：以system登录到pdborcl，创建角色con_res_view和用户new_user，并授权和分配空间：
 ```SQL
 [oracle@deep02 ~]$ sqlplus system/123@pdborcl
 
@@ -80,7 +80,7 @@ SQL> exit
 
 ```
 
-- 第3步：用户hr连接到pdborcl，查询new_user授予它的视图myview
+- 第三步：用户hr连接到pdborcl，查询new_user授予它的视图myview
 ```SQL
 $ sqlplus new_usr/123@pdborcl
 SQL> SELECT * FROM new_usr.myview;
