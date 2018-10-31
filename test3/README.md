@@ -17,7 +17,16 @@
 - 使用system给用户new_usr分配3个表空间：USERS,USERS02,USERS03。
 ![Image text](https://github.com/WwhKiller/Oracle/blob/master/test3/1.png)
 - 创建订单表(orders)与订单详表(order_details)。
-![Image text](https://github.com/WwhKiller/Oracle/blob/master/test3/2.png)
+```SQL
+SQL> select table_name from user_tables;
+
+TABLE_NAME
+--------------------------------------------------------------------------------
+ORDER_DETAILS
+MYTABLE
+ORDERS
+
+```
 - 查看system的表空间
 ```SQL
 SQL> select tablespace_name from dba_tablespaces;
