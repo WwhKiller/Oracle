@@ -192,25 +192,50 @@ USERS03
 
 - 使用system 分配查询执行权限给用户
 ![Image text](https://github.com/WwhKiller/Oracle/blob/master/test3/4.png)
-## 查看数据库的使用情况
+### 步骤3：
+- 插入一万条数据
+ ```SQL
+ begin
+for i in 1..3000
+loop
+insert into ORDERS(ORDER_ID,CUSTOMER_NAME,CUSTOMER_TEL,ORDER_DATE,EMPLOYEE_ID,DISCOUNT) VALUES(i,'大明',12345,to_date('2017-02-14','yyyy-mm-dd'),i,i);
+end loop;
+commit;
 
-以下样例查看表空间的数据库文件，以及每个文件的磁盘占用情况。
+for i in 3001..6000
+loop
+ insert into ORDERS(ORDER_ID,CUSTOMER_NAME,CUSTOMER_TEL,ORDER_DATE,EMPLOYEE_ID,DISCOUNT) VALUES(i,'大明',12345,to_date('2015-02-14','yyyy-mm-dd'),i,i);
+end loop;
+commit;
 
-$ sqlplus system/123@pdborcl
-```sql
-SQL>SELECT tablespace_name,FILE_NAME,BYTES/1024/1024 MB,MAXBYTES/1024/1024 MAX_MB,autoextensible FROM dba_data_files  WHERE  tablespace_name='USERS';
+for i in 6001..10000
+loop
+ insert into ORDERS(ORDER_ID,CUSTOMER_NAME,CUSTOMER_TEL,ORDER_DATE,EMPLOYEE_ID,DISCOUNT) VALUES(i,'张三',12345,to_date('2016-02-14','yyyy-mm-dd'),i,i);
+end loop;
+commit;
 
-SQL>SELECT a.tablespace_name "表空间名",Total/1024/1024 "大小MB",
- free/1024/1024 "剩余MB",( total - free )/1024/1024 "使用MB",
- Round(( total - free )/ total,4)* 100 "使用率%"
- from (SELECT tablespace_name,Sum(bytes)free
-        FROM   dba_free_space group  BY tablespace_name)a,
-       (SELECT tablespace_name,Sum(bytes)total FROM dba_data_files
-        group  BY tablespace_name)b
- where  a.tablespace_name = b.tablespace_name;
-```
-- autoextensible是显示表空间中的数据文件是否自动增加。
-- MAX_MB是指数据文件的最大容量。
+for j in 1..3000
+loop
+insert into order_details(ID,ORDER_ID,PRODUCT_ID,PRODUCT_NUM,PRODUCT_PRICE) VALUES(j,j,'j',20,100);
+end loop;
+commit;
+
+for j in 3001..6000
+loop
+insert into order_details(ID,ORDER_ID,PRODUCT_ID,PRODUCT_NUM,PRODUCT_PRICE) VALUES(j,j,'j',30,200);
+end loop;
+commit;
+
+    for j in 6001..10000
+loop
+insert into order_details(ID,ORDER_ID,PRODUCT_ID,PRODUCT_NUM,PRODUCT_PRICE) VALUES(j,j,'j',40,300);
+end loop;
+commit;
+end;
+
+PL/SQL过程已成功完成
+ ```
+
 
 ## 实验参考
 - Oracle地址：202.115.82.8 用户名：system,hr,你的用户名 ， 密码123， 数据库名称：pdborcl，端口号：1521
