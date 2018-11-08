@@ -191,7 +191,7 @@ USERS03
 ### 步骤2：
 
 - 使用system 分配查询执行权限给用户
-![Image text](https://github.com/WwhKiller/Oracle/blob/master/test3/3.png)
+![Image text](https://github.com/WwhKiller/Oracle/blob/master/test3/4.png)
 ## 查看数据库的使用情况
 
 以下样例查看表空间的数据库文件，以及每个文件的磁盘占用情况。
