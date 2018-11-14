@@ -1,1 +1,508 @@
 
+# 实验4：对象管理
+
+## 实验目的：
+了解Oracle表和视图的概念，学习使用SQL语句Create Table创建表，学习Select语句插入，修改，删除以及查询数据，学习使用SQL语句创建视图，学习部分存储过程和触发器的使用。
+## - 实验场景：
+假设有一个生产某个产品的单位，单位接受网上订单进行产品的销售。通过实验模拟这个单位的部分信息：员工表，部门表，订单表，订单详单表。
+
+## 实验内容：
+### 录入数据：
+要求至少有1万个订单，每个订单至少有4个详单。至少有两个部门，每个部门至少有1个员工，其中只有一个人没有领导，一个领导至少有一个下属，并且它的下属是另一个人的领导（比如A领导B，B领导C）。
+
+###  序列的应用
+插入ORDERS和ORDER_DETAILS 两个表的数据时，主键ORDERS.ORDER_ID, ORDER_DETAILS.ID的值必须通过序列SEQ_ORDER_ID和SEQ_ORDER_ID取得，不能手工输入一个数字。
+
+###  触发器的应用：
+维护ORDER_DETAILS的数据时（insert,delete,update）要同步更新ORDERS表订单应收货款ORDERS.Trade_Receivable的值。
+
+###  查询数据：
+    1.查询某个员工的信息
+    2.递归查询某个员工及其所有下属，子下属员工。
+    3.查询订单表，并且包括订单的订单应收货款: Trade_Receivable= sum(订单详单表.ProductNum*订单详单表.ProductPrice)- Discount。
+    4.查询订单详表，要求显示订单的客户名称和客户电话，产品类型用汉字描述。
+    5.查询出所有空订单，即没有订单详单的订单。
+    6.查询部门表，同时显示部门的负责人姓名。
+    7.查询部门表，统计每个部门的销售总金额。
+## 第一步：
+-- 给new_usr分配权限：
+ ```SQL
+ -- QUOTAS
+  ALTER USER new_usr QUOTA UNLIMITED ON USERS;
+  ALTER USER new_usr QUOTA UNLIMITED ON USERS02;
+  ALTER USER new_usr ACCOUNT UNLOCK;
+  
+  PL/SQL 过程已成功完成。
+  Grant 成功。
+  User NEW_USR已变更。
+  
+    -- ROLES
+  GRANT "CONNECT" TO new_usr WITH ADMIN OPTION;
+  GRANT "RESOURCE" TO new_usr WITH ADMIN OPTION;
+  ALTER USER new_usr DEFAULT ROLE "CONNECT","RESOURCE";
+  
+  Grant 成功。
+  User NEW_USR已变更。
+  
+  -- SYSTEM PRIVILEGES
+  GRANT CREATE VIEW TO new_usr WITH ADMIN OPTION;
+  
+  Grant 成功。
+```
+## 第二步
+ --删除表和序列
+ --删除表的同时会一起删除主外键、触发器、程序包。
+ ```SQL
+ declare
+      num   number;
+begin
+      select count(1) into num from user_tables where TABLE_NAME = 'DEPARTMENTS';
+      if   num=1   then
+          execute immediate 'drop table DEPARTMENTS cascade constraints PURGE';
+      end   if;
+
+      select count(1) into num from user_tables where TABLE_NAME = 'EMPLOYEES';
+      if   num=1   then
+          execute immediate 'drop table EMPLOYEES cascade constraints PURGE';
+      end   if;
+
+      select count(1) into num from user_tables where TABLE_NAME = 'ORDER_ID_TEMP';
+      if   num=1   then
+          execute immediate 'drop table ORDER_ID_TEMP cascade constraints PURGE';
+      end   if;
+
+      select count(1) into num from user_tables where TABLE_NAME = 'ORDER_DETAILS';
+      if   num=1   then
+          execute immediate 'drop table ORDER_DETAILS cascade constraints PURGE';
+      end   if;
+
+      select count(1) into num from user_tables where TABLE_NAME = 'ORDERS';
+      if   num=1   then
+          execute immediate 'drop table ORDERS cascade constraints PURGE';
+      end   if;
+
+      select count(1) into num from user_tables where TABLE_NAME = 'PRODUCTS';
+      if   num=1   then
+          execute immediate 'drop table PRODUCTS cascade constraints PURGE';
+      end   if;
+
+      select count(1) into num from user_sequences where SEQUENCE_NAME = 'SEQ_ORDER_DETAILS_ID';
+      if   num=1   then
+          execute immediate 'drop  SEQUENCE SEQ_ORDER_DETAILS_ID';
+      end   if;
+
+      select count(1) into num from user_sequences where SEQUENCE_NAME = 'SEQ_ORDER_ID';
+      if   num=1   then
+          execute immediate 'drop  SEQUENCE SEQ_ORDER_ID';
+      end   if;
+      select count(1) into num from user_views where VIEW_NAME = 'VIEW_ORDER_DETAILS';
+      if   num=1   then
+          execute immediate 'drop VIEW VIEW_ORDER_DETAILS';
+      end   if;
+
+      SELECT count(object_name)  into num FROM user_objects_ae WHERE object_type = 'PACKAGE' and OBJECT_NAME='MYPACK';
+      if   num=1   then
+          execute immediate 'DROP PACKAGE MYPACK';
+      end   if;
+end; 
+
+PL/SQL 过程已成功完成。
+ ```
+ ## 第三步
+ --创建表DEPARTMENTS,EMPLOYEES,PRODUCTS,ORDERS。
+ --创建表与表之间的关系。
+ ```SQL
+ CREATE TABLE DEPARTMENTS
+(
+  DEPARTMENT_ID NUMBER(6, 0) NOT NULL
+, DEPARTMENT_NAME VARCHAR2(40 BYTE) NOT NULL
+, CONSTRAINT DEPARTMENTS_PK PRIMARY KEY
+  (
+    DEPARTMENT_ID
+  )
+  USING INDEX
+  (
+      CREATE UNIQUE INDEX DEPARTMENTS_PK ON DEPARTMENTS (DEPARTMENT_ID ASC)
+      NOLOGGING
+      TABLESPACE USERS
+      PCTFREE 10
+      INITRANS 2
+      STORAGE
+      (
+        INITIAL 65536
+        NEXT 1048576
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        BUFFER_POOL DEFAULT
+      )
+      NOPARALLEL
+  )
+  ENABLE
+)
+NOLOGGING
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 1
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS UNLIMITED
+  BUFFER_POOL DEFAULT
+)
+NOCOMPRESS NO INMEMORY NOPARALLEL;
+
+PL/SQL 过程已成功完成。
+
+Table DEPARTMENTS 已创建。
+```
+
+```SQL
+CREATE TABLE EMPLOYEES
+(
+  EMPLOYEE_ID NUMBER(6, 0) NOT NULL
+, NAME VARCHAR2(40 BYTE) NOT NULL
+, EMAIL VARCHAR2(40 BYTE)
+, PHONE_NUMBER VARCHAR2(40 BYTE)
+, HIRE_DATE DATE NOT NULL
+, SALARY NUMBER(8, 2)
+, MANAGER_ID NUMBER(6, 0)
+, DEPARTMENT_ID NUMBER(6, 0)
+, PHOTO BLOB
+, CONSTRAINT EMPLOYEES_PK PRIMARY KEY
+  (
+    EMPLOYEE_ID
+  )
+  USING INDEX
+  (
+      CREATE UNIQUE INDEX EMPLOYEES_PK ON EMPLOYEES (EMPLOYEE_ID ASC)
+      NOLOGGING
+      TABLESPACE USERS
+      PCTFREE 10
+      INITRANS 2
+      STORAGE
+      (
+        INITIAL 65536
+        NEXT 1048576
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        BUFFER_POOL DEFAULT
+      )
+      NOPARALLEL
+  )
+  ENABLE
+)
+NOLOGGING
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 1
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS UNLIMITED
+  BUFFER_POOL DEFAULT
+)
+NOCOMPRESS
+NO INMEMORY
+NOPARALLEL
+LOB (PHOTO) STORE AS SYS_LOB0000092017C00009$$
+(
+  ENABLE STORAGE IN ROW
+  CHUNK 8192
+  NOCACHE
+  NOLOGGING
+  TABLESPACE USERS
+  STORAGE
+  (
+    INITIAL 106496
+    NEXT 1048576
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL DEFAULT
+  )
+);
+
+PL/SQL 过程已成功完成。
+
+Table EMPLOYEES 已创建。
+
+```
+
+
+```SQL
+CREATE INDEX EMPLOYEES_INDEX1_NAME ON EMPLOYEES (NAME ASC)
+NOLOGGING
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 2
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS UNLIMITED
+  BUFFER_POOL DEFAULT
+)
+NOPARALLEL;
+
+ALTER TABLE EMPLOYEES
+ADD CONSTRAINT EMPLOYEES_FK1 FOREIGN KEY
+(
+  DEPARTMENT_ID
+)
+REFERENCES DEPARTMENTS
+(
+  DEPARTMENT_ID
+)
+ENABLE;
+
+ALTER TABLE EMPLOYEES
+ADD CONSTRAINT EMPLOYEES_FK2 FOREIGN KEY
+(
+  MANAGER_ID
+)
+REFERENCES EMPLOYEES
+(
+  EMPLOYEE_ID
+)
+ON DELETE SET NULL ENABLE;
+
+ALTER TABLE EMPLOYEES
+ADD CONSTRAINT EMPLOYEES_CHK1 CHECK
+(SALARY>0)
+ENABLE;
+
+ALTER TABLE EMPLOYEES
+ADD CONSTRAINT EMPLOYEES_CHK2 CHECK
+(EMPLOYEE_ID<>MANAGER_ID)
+ENABLE;
+
+ALTER TABLE EMPLOYEES
+ADD CONSTRAINT EMPLOYEES_EMPLOYEE_MANAGER_ID CHECK
+(MANAGER_ID<>EMPLOYEE_ID)
+ENABLE;
+
+ALTER TABLE EMPLOYEES
+ADD CONSTRAINT EMPLOYEES_SALARY CHECK
+(SALARY>0)
+ENABLE;
+
+Table EMPLOYEES 已创建。
+
+
+Table EMPLOYEES已变更。
+```
+
+```SQL
+CREATE TABLE PRODUCTS
+(
+  PRODUCT_NAME VARCHAR2(40 BYTE) NOT NULL
+, PRODUCT_TYPE VARCHAR2(40 BYTE) NOT NULL
+, CONSTRAINT PRODUCTS_PK PRIMARY KEY
+  (
+    PRODUCT_NAME
+  )
+  ENABLE
+)
+LOGGING
+TABLESPACE "USERS"
+PCTFREE 10
+INITRANS 1
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS 2147483645
+  BUFFER_POOL DEFAULT
+);
+
+Table PRODUCTS 已创建。
+
+
+
+```
+
+```SQL
+ALTER TABLE PRODUCTS
+ADD CONSTRAINT PRODUCTS_CHK1 CHECK
+(PRODUCT_TYPE IN ('耗材', '手机', '电脑'))
+ENABLE;
+
+Table PRODUCTS 已创建。
+Table PRODUCTS已变更。
+
+```
+
+```SQL
+--------------------------------------------------------
+--  DDL for Table ORDER_ID_TEMP
+CREATE GLOBAL TEMPORARY TABLE "ORDER_ID_TEMP"
+   (	"ORDER_ID" NUMBER(10,0) NOT NULL ENABLE,
+	 CONSTRAINT "ORDER_ID_TEMP_PK" PRIMARY KEY ("ORDER_ID") ENABLE
+   ) ON COMMIT DELETE ROWS ;
+
+   COMMENT ON TABLE "ORDER_ID_TEMP"  IS '用于触发器存储临时ORDER_ID';
+
+
+--------------------------------------------------------
+
+
+CREATE TABLE ORDERS
+(
+  ORDER_ID NUMBER(10, 0) NOT NULL
+, CUSTOMER_NAME VARCHAR2(40 BYTE) NOT NULL
+, CUSTOMER_TEL VARCHAR2(40 BYTE) NOT NULL
+, ORDER_DATE DATE NOT NULL
+, EMPLOYEE_ID NUMBER(6, 0) NOT NULL
+, DISCOUNT NUMBER(8, 2) DEFAULT 0
+, TRADE_RECEIVABLE NUMBER(8, 2) DEFAULT 0
+)
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 1
+STORAGE
+(
+  BUFFER_POOL DEFAULT
+)
+NOCOMPRESS
+NOPARALLEL
+PARTITION BY RANGE (ORDER_DATE)
+(
+  PARTITION PARTITION_BEFORE_2016 VALUES LESS THAN (TO_DATE(' 2016-01-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIAN'))
+  NOLOGGING
+  TABLESPACE USERS
+  PCTFREE 10
+  INITRANS 1
+  STORAGE
+  (
+    INITIAL 8388608
+    NEXT 1048576
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL DEFAULT
+  )
+  NOCOMPRESS NO INMEMORY
+, PARTITION PARTITION_BEFORE_2017 VALUES LESS THAN (TO_DATE(' 2017-01-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIAN'))
+  NOLOGGING
+  TABLESPACE USERS02
+  PCTFREE 10
+  INITRANS 1
+  STORAGE
+  (
+    INITIAL 8388608
+    NEXT 1048576
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL DEFAULT
+  )
+  NOCOMPRESS NO INMEMORY
+);
+
+Table ORDERS 已创建。
+```
+
+--创建本地分区索引ORDERS_INDEX_DATE：
+```SQL
+CREATE INDEX ORDERS_INDEX_DATE ON ORDERS (ORDER_DATE ASC)
+LOCAL
+(
+  PARTITION PARTITION_BEFORE_2016
+    TABLESPACE USERS
+    PCTFREE 10
+    INITRANS 2
+    STORAGE
+    (
+      INITIAL 8388608
+      NEXT 1048576
+      MINEXTENTS 1
+      MAXEXTENTS UNLIMITED
+      BUFFER_POOL DEFAULT
+    )
+    NOCOMPRESS
+, PARTITION PARTITION_BEFORE_2017
+    TABLESPACE USERS02
+    PCTFREE 10
+    INITRANS 2
+    STORAGE
+    (
+      INITIAL 8388608
+      NEXT 1048576
+      MINEXTENTS 1
+      MAXEXTENTS UNLIMITED
+      BUFFER_POOL DEFAULT
+    )
+    NOCOMPRESS
+)
+STORAGE
+(
+  BUFFER_POOL DEFAULT
+)
+NOPARALLEL;
+
+CREATE INDEX ORDERS_INDEX_CUSTOMER_NAME ON ORDERS (CUSTOMER_NAME ASC)
+NOLOGGING
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 2
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS UNLIMITED
+  BUFFER_POOL DEFAULT
+)
+NOPARALLEL;
+
+CREATE UNIQUE INDEX ORDERS_PK ON ORDERS (ORDER_ID ASC)
+GLOBAL PARTITION BY HASH (ORDER_ID)
+(
+  PARTITION INDEX_PARTITION1 TABLESPACE USERS
+    NOCOMPRESS
+, PARTITION INDEX_PARTITION2 TABLESPACE USERS02
+    NOCOMPRESS
+)
+NOLOGGING
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 2
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS UNLIMITED
+  BUFFER_POOL DEFAULT
+)
+NOPARALLEL;
+
+ALTER TABLE ORDERS
+ADD CONSTRAINT ORDERS_PK PRIMARY KEY
+(
+  ORDER_ID
+)
+USING INDEX ORDERS_PK
+ENABLE;
+
+ALTER TABLE ORDERS
+ADD CONSTRAINT ORDERS_FK1 FOREIGN KEY
+(
+  EMPLOYEE_ID
+)
+REFERENCES EMPLOYEES
+(
+  EMPLOYEE_ID
+)
+ENABLE;
+
+Table ORDERS已变更。
+```
+--创建3个触发器
+
+--批量插入订单数据之前，禁用触发器
+--批量插入订单数据，注意ORDERS.TRADE_RECEIVABLE（订单应收款）的自动计算,注意插入数据的速度
+--2千万条记录，插入的时间是：18100秒（约5小时）
