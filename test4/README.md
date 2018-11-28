@@ -825,4 +825,137 @@ begin
 end;
 /
  PL/SQL 过程已成功完成
+   ALTER TRIGGER "ORDERS_TRIG_ROW_LEVEL" ENABLE;
+    --Trigger "ORDERS_TRIG_ROW_LEVEL"已变更。
+    
+     ALTER TRIGGER "ORDER_DETAILS_SNTNS_TRIG" ENABLE;
+     --Trigger "ORDER_DETAILS_SNTNS_TRIG"已变更。
+     
+     ALTER TRIGGER "ORDER_DETAILS_ROW_TRIG" ENABLE;
+     --Trigger "ORDER_DETAILS_ROW_TRIG"已变更。
+
+    --最后动态增加一个PARTITION_BEFORE_2018分区：
+    ALTER TABLE ORDERS
+    ADD PARTITION PARTITION_BEFORE_2018 VALUES LESS THAN (TO_DATE(' 2018-01-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIAN'));
+    
+    --Table ORDERS已变更
+    
+
+    ALTER INDEX ORDERS_INDEX_DATE
+    MODIFY PARTITION PARTITION_BEFORE_2018
+    NOCOMPRESS;
+    
+    --Index ORDERS_INDEX_DATE已变更。
 ```
+##### （2）序列的应用语句及其相关语句。
+    注：插入ORDERS和ORDER_DETAILS 两个表的数据时，主键ORDERS.ORDER_ID, ORDER_DETAILS.ID的值必须通过序列SEQ_ORDER_ID和SEQ_ORDER_ID取得，不能手工输入一个数字。
+    --------------------------------------------------------
+    --  DDL for Sequence SEQ_ORDER_ID
+    --------------------------------------------------------
+    CREATE SEQUENCE  "SEQ_ORDER_ID"  MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 START WITH 1 CACHE 2000 ORDER  NOCYCLE  NOPARTITION ;
+    --------------------------------------------------------
+    --  DDL for Sequence SEQ_ORDER_DETAILS_ID
+    --------------------------------------------------------
+    CREATE SEQUENCE  "SEQ_ORDER_DETAILS_ID"  MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 START WITH 1 CACHE 2000 ORDER  NOCYCLE           NOPARTITION ;
+    
+    --Sequence "SEQ_ORDER_ID" 已创建。
+
+
+    --Sequence "SEQ_ORDER_DETAILS_ID" 已创建。
+
+    
+---触发器的应用语句及其相关语句。
+    注：维护ORDER_DETAILS的数据时（insert,delete,update）要同步更新ORDERS表订单应收货款ORDERS.Trade_Receivable的值。
+    
+    --创建3个触发器
+    --------------------------------------------------------
+    --  DDL for Trigger ORDERS_TRIG_ROW_LEVEL
+    --------------------------------------------------------
+     CREATE OR REPLACE EDITIONABLE TRIGGER "ORDERS_TRIG_ROW_LEVEL"
+    BEFORE INSERT OR UPDATE OF DISCOUNT ON "ORDERS"
+    FOR EACH ROW --行级触发器
+    declare
+    m number(8,2);
+    BEGIN
+    if inserting then
+        :new.TRADE_RECEIVABLE := - :new.discount;
+    else
+      select sum(PRODUCT_NUM*PRODUCT_PRICE) into m from ORDER_DETAILS where ORDER_ID=:old.ORDER_ID;
+      if m is null then
+        m:=0;
+      end if;
+      :new.TRADE_RECEIVABLE := m - :new.discount;
+    end if;
+    END;
+    /
+    
+    Trigger ORDERS_TRIG_ROW_LEVEL 已编译
+    
+    --批量插入订单数据之前，禁用触发器
+    ALTER TRIGGER "ORDERS_TRIG_ROW_LEVEL" DISABLE;
+    
+    Trigger "ORDERS_TRIG_ROW_LEVEL"已变更。
+
+
+     --------------------------------------------------------
+    --  DDL for Trigger ORDER_DETAILS_ROW_TRIG
+    --------------------------------------------------------
+
+    CREATE OR REPLACE EDITIONABLE TRIGGER "ORDER_DETAILS_ROW_TRIG"
+    AFTER DELETE OR INSERT OR UPDATE  ON ORDER_DETAILS
+    FOR EACH ROW
+    BEGIN
+    --DBMS_OUTPUT.PUT_LINE(:NEW.ORDER_ID);
+    IF :NEW.ORDER_ID IS NOT NULL THEN
+     MERGE INTO ORDER_ID_TEMP A
+    USING (SELECT 1 FROM DUAL) B
+    ON (A.ORDER_ID=:NEW.ORDER_ID)
+    WHEN NOT MATCHED THEN
+      INSERT (ORDER_ID) VALUES(:NEW.ORDER_ID);
+    END IF;
+    IF :OLD.ORDER_ID IS NOT NULL THEN
+    MERGE INTO ORDER_ID_TEMP A
+    USING (SELECT 1 FROM DUAL) B
+    ON (A.ORDER_ID=:OLD.ORDER_ID)
+    WHEN NOT MATCHED THEN
+      INSERT (ORDER_ID) VALUES(:OLD.ORDER_ID);
+     END IF;
+    END;
+     /
+     
+     Trigger ORDER_DETAILS_ROW_TRIG 已编译
+     
+     ALTER TRIGGER "ORDER_DETAILS_ROW_TRIG" DISABLE;
+     
+     Trigger "ORDER_DETAILS_ROW_TRIG"已变更。
+     
+     --------------------------------------------------------
+    --  DDL for Trigger ORDER_DETAILS_SNTNS_TRIG
+    --------------------------------------------------------
+
+    CREATE OR REPLACE EDITIONABLE TRIGGER "ORDER_DETAILS_SNTNS_TRIG"
+    AFTER DELETE OR INSERT OR UPDATE ON ORDER_DETAILS
+    declare
+     m number(8,2);
+    BEGIN
+     FOR R IN (SELECT ORDER_ID FROM ORDER_ID_TEMP)
+    LOOP
+    --DBMS_OUTPUT.PUT_LINE(R.ORDER_ID);
+    select sum(PRODUCT_NUM*PRODUCT_PRICE) into m from ORDER_DETAILS
+      where ORDER_ID=R.ORDER_ID;
+    if m is null then
+      m:=0;
+    end if;
+    UPDATE ORDERS SET TRADE_RECEIVABLE = m - discount
+      WHERE ORDER_ID=R.ORDER_ID;
+     END LOOP;
+     --delete from ORDER_ID_TEMP; --这句话很重要，否则可能一直不释放空间，后继插入会非常慢。
+    END;
+    
+    Trigger ORDER_DETAILS_SNTNS_TRIG 已编译
+    
+    /
+    ALTER TRIGGER "ORDER_DETAILS_SNTNS_TRIG" DISABLE;
+    
+    Trigger "ORDER_DETAILS_SNTNS_TRIG"已变更。
+    
