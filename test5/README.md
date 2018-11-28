@@ -46,7 +46,7 @@ END MyPack;
 
 Package MYPACK 已编译
 ```
-#### 在MyPack中创建一个函数SaleAmount ，查询部门表，统计每个部门的销售总金额，每个部门的销售额是由该部门的员工(ORDERS.EMPLOYEE_ID)完成的销售额之和。函数SaleAmount要求输入的参数是部门号，输出部门的销售金额。
+#### 第二步：在MyPack中创建一个函数SaleAmount ，查询部门表，统计每个部门的销售总金额，每个部门的销售额是由该部门的员工(ORDERS.EMPLOYEE_ID)完成的销售额之和。函数SaleAmount要求输入的参数是部门号，输出部门的销售金额。
 ```SQL
 create or replace PACKAGE BODY MyPack IS
   FUNCTION Get_SaleAmount(V_DEPARTMENT_ID NUMBER) RETURN NUMBER
@@ -78,7 +78,7 @@ END MyPack;
 
 Package Body MYPACK 已编译
 ```
-函数Get_SaleAmount()测试方法：
+--函数Get_SaleAmount()测试方法：
 ```sql
 select count(*) from orders;
 select MyPack.Get_SaleAmount(11) AS 部门11应收金额,MyPack.Get_SaleAmount(12) AS 部门12应收金额 from dual;
@@ -95,7 +95,7 @@ PL/SQL 过程已成功完成。
  143366361  142989137
 
 ```
-过程Get_Employees()测试代码：
+--过程Get_Employees()测试代码：
 ```sql
 1 李董事长
     11 张总
