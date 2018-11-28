@@ -847,7 +847,7 @@ end;
     
     --Index ORDERS_INDEX_DATE已变更。
 ```
-##### （2）序列的应用语句及其相关语句。
+---序列的应用语句及其相关语句。
     注：插入ORDERS和ORDER_DETAILS 两个表的数据时，主键ORDERS.ORDER_ID, ORDER_DETAILS.ID的值必须通过序列SEQ_ORDER_ID和SEQ_ORDER_ID取得，不能手工输入一个数字。
     --------------------------------------------------------
     --  DDL for Sequence SEQ_ORDER_ID
