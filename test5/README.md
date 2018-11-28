@@ -36,3 +36,15 @@ START WITH EMPLOYEE_ID = V_EMPLOYEE_ID
 CONNECT BY PRIOR EMPLOYEE_ID = MANAGER_ID
 
 ```
+## 实验步骤：
+#### 第一步：创建包（Package）,包名为：MyPack。
+```SQL
+create or replace PACKAGE MyPack IS
+  FUNCTION Get_SaleAmount(V_DEPARTMENT_ID NUMBER) RETURN NUMBER;
+  PROCEDURE Get_Employees(V_EMPLOYEE_ID NUMBER);
+END MyPack;
+
+Package MYPACK 已编译
+```
+#### 在MyPack中创建一个函数SaleAmount ，查询部门表，统计每个部门的销售总金额，每个部门的销售额是由该部门的员工(ORDERS.EMPLOYEE_ID)完成的销售额之和。函数SaleAmount要求输入的参数是部门号，输出部门的销售金额。
+
